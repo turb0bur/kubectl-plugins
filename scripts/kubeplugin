@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Check if all arguments are provided
+if [[ $# -ne 2 ]]; then
+  echo "Usage: $0 <pod|node> <namespace>"
+  exit 1
+fi
+
+# Define command-line arguments
+resource_type=$1
+namespace=$2
+
+# Retrieve resource usage statistics from Kubernetes
+kubectl top $resource_type -n $namespace | tail -n +2 | while read line
+do
+  # Extract CPU and memory usage from the output
+  resource_name=$(echo $line | awk '{print $1}')
+  cpu=$(echo $line | awk '{print $2}')
+  memory=$(echo $line | awk '{print $3}')
+
+  # Output the statistics to the console
+  echo "Resource: $resource_type"
+  echo "Namespace: $namespace"
+  echo "Name: $resource_name"
+  echo "CPU: $cpu"
+  echo -e "Memory: $memory \n"
+done
